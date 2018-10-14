@@ -1,6 +1,8 @@
 package com.fstmaps;
 
 import com.facebook.react.ReactActivity;
+//import android.os.Bundle;
+//import com.reactnativecomponent.splashscreen.RCTSplashScreen;
 
 public class MainActivity extends ReactActivity {
 
@@ -12,4 +14,7 @@ public class MainActivity extends ReactActivity {
     protected String getMainComponentName() {
         return "FSTMaps";
     }
+//    @Override protected void onCreate(Bundle savedInstanceState) {
+//        RCTSplashScreen.openSplashScreen(this);
+// }
 }

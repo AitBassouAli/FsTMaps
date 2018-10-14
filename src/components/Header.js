@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, TouchableWithoutFeedback, Modal, Text, TouchableHighlight } from 'react-native';
+import { View, StyleSheet, TouchableWithoutFeedback, Modal, Text, TouchableHighlight, TouchableOpacity } from 'react-native';
 import { Header, Left, Right, Button, Icon, Item, Input } from 'native-base';
 import Voice from 'react-native-voice';
+import Spinner from 'react-native-spinkit'
 export default class HeaderComponent extends Component {
     state = {
         results: [],
-        isModalOpen: false
+        isModalOpen: false,
+        iputValue: "",
     }
     constructor() {
         super();
@@ -15,13 +17,14 @@ export default class HeaderComponent extends Component {
     }
 
     onSpeechStartHandler() {
-        Voice.start('en-US');
+        Voice.start('fr-FR');
     }
     onSpeechEndHandler() {
         Voice.stop();
         this.setState({
             results: "",
-            isModalOpen: false
+            isModalOpen: false,
+
         });
         const { setStateAfterRecord } = this.props;
         setStateAfterRecord();
@@ -38,11 +41,46 @@ export default class HeaderComponent extends Component {
             isModalOpen: true
         })
     }
-
+    OnchangeValue(value) {
+        this.setState({ iputValue: value })
+    }
+    iconView() {
+        if (this.state.iputValue <= 0) {
+            return (
+                <TouchableWithoutFeedback
+                    onPress={this.onSpeechStartHandler.bind()}
+                    onLongPress={this.onSpeechStartHandler.bind()}
+                >
+                    <View style={styles.button} >
+                        <Icon name='mic' style={styles.buttonIcon} />
+                    </View>
+                </TouchableWithoutFeedback>
+            )
+        }
+        else {
+            const { rechercherSalle } = this.props;
+            return (
+                <TouchableWithoutFeedback
+                    onPress={() => rechercherSalle(this.state.iputValue)}
+                >
+                    <View style={styles.button} >
+                        <Icon name='search' style={styles.buttonIcon} />
+                    </View>
+                </TouchableWithoutFeedback>
+            )
+        }
+    }
+    filtrer(value) {
+        const { filtrer } = this.props;
+        this.setState({
+            iputValue: value
+        })
+        filtrer(value)
+    }
     render() {
-        const { openDrawer } = this.props;
+        const { openDrawer, rechercherSalle} = this.props;
         return (
-            <Header>
+            <Header style={{backgroundColor: '#0d2a51' }}>
                 <Left>
                     <Button transparent onPress={() => openDrawer()}>
                         <Icon name='menu' />
@@ -53,19 +91,12 @@ export default class HeaderComponent extends Component {
                         <View style={{ flex: 1, height: "100%", width: 300, justifyContent: 'center', marginLeft: -50 }}>
                             <Item style={{ backgroundColor: 'white', paddingHorizontal: 10, borderRadius: 4 }}>
                                 <Icon name="search" style={{ fontSize: 24 }} />
-                                <Input placeholder="Search" />
+                                <Input placeholder="Search" onChangeText={(value) => this.filtrer(value)} />
                             </Item>
                         </View>
 
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <TouchableWithoutFeedback
-                                onPress={this.onSpeechStartHandler.bind()}
-                                onLongPress={this.onSpeechStartHandler.bind()}
-                            >
-                                <View style={styles.button} >
-                                    <Icon name='mic' style={styles.buttonIcon} />
-                                </View>
-                            </TouchableWithoutFeedback>
+                            {this.iconView()}
                         </View>
                     </View>
                 </Right>
@@ -75,11 +106,10 @@ export default class HeaderComponent extends Component {
                     <View  >
                         <View style={styles.model}>
                             <Item style={styles.modalContent} >
-                                <Text>disez quelque chose ...</Text>
+                                <Text>disez quelque chose </Text>
+                                <Spinner style={styles.spinner} isVisible={true} size={50} type='ThreeBounce' color='red' />
                                 <TouchableHighlight style={styles.cancelModalBtn}
-                                    onPress={() => {
-                                        this.setState({ isModalOpen: false });
-                                    }}>
+                                    onPress={() => this.onSpeechEndHandler()}>
                                     <Text style={styles.cancelModalBtnText}>Annuler</Text>
                                 </TouchableHighlight>
                             </Item>
@@ -102,14 +132,14 @@ const styles = StyleSheet.create({
     },
     model: {
         justifyContent: 'center',
-        marginTop: 60,
+        marginTop: 170,
         marginLeft: 10,
         marginRight: 10,
         backgroundColor: '#f5f5dc',
-        borderRadius: 5
+        borderRadius: 70
     },
     modalContent: {
-        padding: 20,
+        padding: 30,
         justifyContent: 'space-between'
     },
     cancelModalBtn: {
@@ -117,5 +147,8 @@ const styles = StyleSheet.create({
     cancelModalBtnText: {
         padding: 20,
         color: 'red'
+    },
+    spinner: {
+        marginTop: 5,
     }
 });
